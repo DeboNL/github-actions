@@ -1,0 +1,49 @@
+name: Add link to ticket system
+description: Adds a link to the ticket system to the pull request description
+
+inputs:
+  ticketBaseUrl:
+    description: >
+      Base URL of documentation system, 
+      eg 'https://example.atlassian.net/browse/' (turns into: [..]/issue/EXA-12345)
+      or 'https://linear.app/example/issue/' (turns into: [..]/your-company/issue/EXA-12345)
+    required: true
+
+  issuePattern:
+    description: The regex pattern used to extract the issue id from the branch name
+    required: false
+    default: '([a-zA-Z]{1,5}-\d{1,9})'
+
+runs:
+  using: composite
+  steps:
+    - name: Add link to ticket system to PR description
+      uses: actions/github-script@v9
+      with:
+        script: |
+          const pr = context.payload.pull_request;
+          const branch = pr.head.ref;
+          const currentBody = pr.body ?? '';
+          const marker = '<!-- ticket-link -->';
+
+          const match = branch.match(new RegExp(inputs.issuePattern));
+          if (!match) {
+            core.setFailed(`Could not match the ticket pattern: ${branch}`);
+            return;
+          }
+          
+          if (currentBody.includes(marker)) {
+            core.info('Ticket link already added');
+            return;
+          }
+          
+          const issueKey = match[1].toUpperCase();
+          const ticketUrl = `${inputs.ticketBaseUrl}/browse/${issueKey}`;
+          const descriptionFooter = `${marker}\n🎫 View matching ticket: [${issueKey}](${ticketUrl })`;
+        
+          await github.rest.pulls.update({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            pull_number: pr.number,
+            body: currentBody ? `${currentBody}\n\n---\n${descriptionFooter}` : descriptionFooter
+          });
