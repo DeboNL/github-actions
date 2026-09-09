@@ -19,6 +19,9 @@ runs:
   steps:
     - name: Add link to ticket system to PR description
       uses: actions/github-script@v9
+      env:
+        TICKET_BASE_URL: ${{ inputs.ticketBaseUrl }}
+        ISSUE_PATTERN: ${{ inputs.issuePattern }}
       with:
         script: |
           const pr = context.payload.pull_request;
@@ -26,7 +29,7 @@ runs:
           const currentBody = pr.body ?? '';
           const marker = '<!-- ticket-link -->';
 
-          const match = branch.match(new RegExp(inputs.issuePattern));
+          const match = branch.match(new RegExp(process.env.ISSUE_PATTERN));
           if (!match) {
             core.setFailed(`Could not match the ticket pattern: ${branch}`);
             return;
@@ -38,7 +41,7 @@ runs:
           }
           
           const issueKey = match[1].toUpperCase();
-          const ticketUrl = `${inputs.ticketBaseUrl}/browse/${issueKey}`;
+          const ticketUrl = `${process.env.TICKET_BASE_URL}${issueKey}`;
           const descriptionFooter = `${marker}\n🎫 View matching ticket: [${issueKey}](${ticketUrl })`;
         
           await github.rest.pulls.update({
