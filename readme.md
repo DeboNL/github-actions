@@ -36,7 +36,7 @@ on:
 
 jobs:
   deploy:
-    uses: DeboNL/github-actions/.github/workflows/deploy-forge.yml@v1
+    uses: DeboNL/github-actions/.github/workflows/deploy-forge@v1
     secrets:
       organization: example-company # you can find this in the url: https://forge.laravel.com/example-company
       apiToken: ${{ secrets.FORGE_API_TOKEN }} # https://forge.laravel.com/profile/api -> create token > 'site:create' + 'site:manage-deploys'
