@@ -24,8 +24,9 @@ jobs:
 
 ## Forge Deployer
 Adds Tag Based releasing to Forge. Create a Release in Github and use the tag to sync Forge.  
-Create a release with label 'pre-release' to push to staging, 
+Create a release with label 'pre-release' to push to staging, 'latest' or 'none' for production. You can change a 'pre-release' to either to ALSO push to production
 
+_**Note:** This assumes that you have the Forge deploy already working._
 ```yaml
 name: Deploy webhook
 
