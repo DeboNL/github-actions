@@ -29,7 +29,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Prepare Forge deployment
+    - name: Prepare Forge deployment to ${{ github.event.release.prerelease && 'STAGING' || 'PRODUCTION' }}
       shell: bash
       env:
         FORGE_ORGANIZATION: ${{ inputs.organization }}
