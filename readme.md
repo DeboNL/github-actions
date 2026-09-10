@@ -35,14 +35,17 @@ on:
     types: [published, released]
 
 jobs:
-  deploy:
-    uses: DeboNL/github-actions/.github/workflows/deploy-forge@v1
-    secrets:
-      organization: example-company # you can find this in the url: https://forge.laravel.com/example-company
-      apiToken: ${{ secrets.FORGE_API_TOKEN }} # https://forge.laravel.com/profile/api -> create token > 'site:create' + 'site:manage-deploys'
-      # Both staging and production are optional. You can have one or both (or none)
-      stagingServerId: 112233 
-      stagingSiteId: 112233
-      productionServerId: 112233
-      productionSiteId: 112233
+  comment:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: DeboNL/github-actions/forge-deployer@v1
+        with:
+          organization: example-company # you can find this in the url: https://forge.laravel.com/example-company
+          apiToken: ${{ secrets.FORGE_API_TOKEN }} # https://forge.laravel.com/profile/api -> create token > 'site:create' + 'site:manage-deploys'
+          # Both staging and production are optional. You can have one or both (or none)
+          stagingServerId: 112233 
+          stagingSiteId: 112233
+          productionServerId: 112233
+          productionSiteId: 112233
 ```
