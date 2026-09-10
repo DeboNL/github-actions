@@ -29,54 +29,61 @@ inputs:
 runs:
   using: composite
   steps:
-      - name: Prepare deploying to STAGING
-        if: ${{ github.event.action == 'published' && github.event.release.prerelease == true }}
-        env:
-          FORGE_STG_SERVER_ID: ${{ inputs.stagingServerId }}
-          FORGE_STG_SITE_ID: ${{ inputs.stagingSiteId }}
-        run: |
-          echo "FORGE_SERVER_ID=$FORGE_STG_SERVER_ID" >> "$GITHUB_ENV"
-          echo "FORGE_SITE_ID=$FORGE_STG_SITE_ID" >> "$GITHUB_ENV"
+    - name: Prepare Forge deployment
+      shell: bash
+      env:
+        FORGE_ORGANIZATION: ${{ inputs.organization }}
+        FORGE_API_TOKEN: ${{ inputs.apiToken }}
 
-      - name: Prepare deploying to PRODUCTION
-        if: ${{ github.event.release.prerelease == false }}
-        env:
-          FORGE_PRD_SERVER_ID: ${{ inputs.productionServerId }}
-          FORGE_PRD_SITE_ID: ${{ inputs.productionSiteId }}
-        run: |
-          echo "FORGE_SERVER_ID=$FORGE_PRD_SERVER_ID" >> "$GITHUB_ENV"
-          echo "FORGE_SITE_ID=$FORGE_PRD_SITE_ID" >> "$GITHUB_ENV"
+        RELEASE_ACTION: ${{ github.event.action }}
+        IS_PRERELEASE: ${{ github.event.release.prerelease }}
+        TAG: ${{ github.event.release.tag_name }}
 
-      - name: Build the Forge SITE_URL
-        env:
-          FORGE_ORGANIZATION: ${{ inputs.organization }}
-        run: |
-          if [ -z "$FORGE_SERVER_ID" ] || [ -z "$FORGE_SITE_ID" ]; then
-            echo "Missing FORGE_SERVER_ID or FORGE_SITE_ID"
-            exit 1
-          fi
+        FORGE_STG_SERVER_ID: ${{ inputs.stagingServerId }}
+        FORGE_STG_SITE_ID: ${{ inputs.stagingSiteId }}
+        FORGE_PRD_SERVER_ID: ${{ inputs.productionServerId }}
+        FORGE_PRD_SITE_ID: ${{ inputs.productionSiteId }}
+      run: |
+        if [[ "$RELEASE_ACTION" == "published" && "$IS_PRERELEASE" == "true" ]]; then
+          forge_server_id="$FORGE_STG_SERVER_ID"
+          forge_site_id="$FORGE_STG_SITE_ID"
+          echo "Deploying to Staging (tag: $TAG)"
+        elif [[ "$IS_PRERELEASE" == "false" ]]; then
+          forge_server_id="$FORGE_PRD_SERVER_ID"
+          forge_site_id="$FORGE_PRD_SITE_ID"
+          echo "Deploying to Production (tag: $TAG)"
+        fi
 
-          echo "SITE_URL=https://forge.laravel.com/api/orgs/$FORGE_ORGANIZATION/servers/$FORGE_SERVER_ID/sites/$FORGE_SITE_ID" >> "$GITHUB_ENV"
+        if [[ -z "$forge_server_id" || -z "$forge_site_id" ]]; then
+          echo "Missing Forge server or site ID for this release"
+          exit 1
+        fi
 
-      - name: Update Forge's branch to the proper tag
-        env:
-          FORGE_API_TOKEN: ${{ inputs.apiToken }}
-        run: |
-          curl \
-            --fail-with-body --show-error \
-            --request PUT \
-            --header "Authorization: Bearer $FORGE_API_TOKEN" \
-            --header "Accept: application/json" \
-            --header "Content-Type: application/json" \
-            --data "$(jq -n --arg tag "${{ github.event.release.tag_name }}" '{repository_branch: $tag}')" \
-            "$SITE_URL"
+        echo "SITE_URL=https://forge.laravel.com/api/orgs/$FORGE_ORGANIZATION/servers/$forge_server_id/sites/$forge_site_id" >> "$GITHUB_ENV"
 
-      - name: Trigger Forge deployment
-        run: |
-          curl \
-            --fail-with-body --show-error \
-            --request POST \
-            --header "Authorization: Bearer $FORGE_API_TOKEN" \
-            --header "Accept: application/json" \
-            --header "Content-Type: application/json" \
-            "$SITE_URL/deployments"
+    - name: Update Forge's branch to the proper tag
+      shell: bash
+      env:
+        FORGE_API_TOKEN: ${{ inputs.apiToken }}
+      run: |
+        curl \
+          --fail-with-body --show-error \
+          --request PUT \
+          --header "Authorization: Bearer $FORGE_API_TOKEN" \
+          --header "Accept: application/json" \
+          --header "Content-Type: application/json" \
+          --data "$(jq -n --arg tag "${{ github.event.release.tag_name }}" '{repository_branch: $tag}')" \
+          "$SITE_URL"
+
+    - name: Trigger Forge deployment
+      shell: bash
+      env:
+        FORGE_API_TOKEN: ${{ inputs.apiToken }}
+      run: |
+        curl \
+          --fail-with-body --show-error \
+          --request POST \
+          --header "Authorization: Bearer $FORGE_API_TOKEN" \
+          --header "Accept: application/json" \
+          --header "Content-Type: application/json" \
+          "$SITE_URL/deployments"
