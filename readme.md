@@ -47,7 +47,7 @@ Create a release and control with its label where you deploy to:
 - Verify everything is working as expected, then edit the release to '_latest_' or '_none_'.
 
 ### Prerequisites / install
-_👉 Add the following file._
+_👉 Add the following file._  
 _👉 This assumes that you have the Forge deploy already working._
 ```yaml
 # .github/workflows/forge-deployer.yml
