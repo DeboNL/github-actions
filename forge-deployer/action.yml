@@ -75,7 +75,7 @@ runs:
           --data "$(jq -n --arg tag "${{ github.event.release.tag_name }}" '{repository_branch: $tag}')" \
           "$SITE_URL"
 
-    - name: Trigger Forge deployment
+    - name: Trigger Forge deployment for '${{ github.event.release.tag_name }}' to ${{ github.event.release.prerelease && 'STAGING' || 'PRODUCTION' }}
       shell: bash
       env:
         FORGE_API_TOKEN: ${{ inputs.apiToken }}
