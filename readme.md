@@ -1,5 +1,14 @@
-## Link to ticket system adder
-This adds a link to the ticket of which the PR originates, so that users can easily view the ticket for context.
+**Table of contents**
+
+- [Link to ticket system adder](#link-to-ticket-system-adder)
+- [Forge Deployer](#forge-deployer)
+
+## 'Link to ticket system' adder
+When a Pull Request gets created it will add a small footer to the description with a link to the ticket. This is based on the branch of the feature.
+
+### Prerequisites / install
+_️👉 Apart from creating this file, no further action is required to make this work._ 
+
 ```yaml
 # .github/workflows/auto-commenter.yml
 name: Add relevant data to description
@@ -22,12 +31,26 @@ jobs:
           issuePattern: '([a-z]{2}\-\d+)' # Optional, default is '([a-zA-Z]{1,5}-\d{1,9})', 'EXAM-12345', 'ABC-112233', 'xyz-9876'
 ```
 
+---
+
 ## Forge Deployer
 Adds Tag Based releasing to Forge. Create a Release in Github and use the tag to sync Forge.  
-Create a release with label 'pre-release' to push to staging, 'latest' or 'none' for production. You can change a 'pre-release' to either to ALSO push to production
+Create a release and control with its label where you deploy to:
+- Label '_pre-release_' will use the `staging` parameters
+- Labels '_latest_' or '_none_' will use `production` parameters.
+- When you change a 'pre-release' to '_none_'/'_latest_' it will push to production
 
-_**Note:** This assumes that you have the Forge deploy already working._
+### Recommended workflow:
+- Have one default branch, e.g. 'main' or 'master'.
+- Merge one or more Pull Requests
+- Create a release in Github, set a tag and label it with '_pre-release_'
+- Verify everything is working as expected, then edit the release to '_latest_' or '_none_'.
+
+### Prerequisites / install
+_👉 Add the following file._
+_👉 This assumes that you have the Forge deploy already working._
 ```yaml
+# .github/workflows/forge-deployer.yml
 name: Deploy webhook
 
 on:
