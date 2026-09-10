@@ -2,29 +2,29 @@ name: Deploy to Forge
 description: Deploy a release to Laravel Forge
 
 inputs:
-  stagingServerId:
-    required: false
-    description:
-
-  stagingSiteId:
-    required: false
-    description:
-
-  productionServerId:
-    required: false
-    description:
-
-  productionSiteId:
-    required: false
-    description:
-
   organization:
     required: true
-    description:
+    description: You can find this in the url (https://forge.laravel.com/example-company)
 
   apiToken:
     required: true
-    description:
+    description: https://forge.laravel.com/profile/api -> create token > 'site:create' + 'site:manage-deploys'
+
+  stagingServerId:
+    required: false
+    description: The 'Server ID' of the staging server, eg 123456
+
+  stagingSiteId:
+    required: false
+    description: The 'Site ID' of the staging site, eg 123456
+
+  productionServerId:
+    required: false
+    description: The 'Server ID' of the production server, eg 123456
+
+  productionSiteId:
+    required: false
+    description: The 'Site ID' of the production site, eg 123456
 
 runs:
   using: composite
