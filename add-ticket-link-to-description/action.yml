@@ -28,7 +28,8 @@ runs:
           const branch = pr.head.ref;
           const currentBody = pr.body ?? '';
           const marker = '<!-- ticket-link -->';
-
+          let descriptionFooter;
+          
           if (currentBody.includes(marker)) {
             core.info('Ticket link already added');
             return;
@@ -38,9 +39,9 @@ runs:
           if (match) {
             const issueKey = match[1].toUpperCase();
             const ticketUrl = `${process.env.TICKET_BASE_URL}${issueKey}`;
-            const descriptionFooter = `${marker}\n🎫 View matching ticket: [${issueKey}](${ticketUrl })`;
+            descriptionFooter = `${marker}\n🎫 View matching ticket: [${issueKey}](${ticketUrl })`;
           } else {
-            const descriptionFooter= `_Could not match the ticket pattern: ${branch}_`;
+            descriptionFooter = `_Could not match the ticket pattern: ${branch}_`;
           }          
         
           await github.rest.pulls.update({
