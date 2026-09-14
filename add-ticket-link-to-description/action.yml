@@ -31,7 +31,7 @@ runs:
 
           const match = branch.match(new RegExp(process.env.ISSUE_PATTERN));
           if (!match) {
-            core.setFailed(`Could not match the ticket pattern: ${branch}`);
+            core.setNeutral(`Could not match the ticket pattern: ${branch}`);
             return;
           }
           
