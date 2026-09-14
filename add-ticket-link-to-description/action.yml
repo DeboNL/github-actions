@@ -29,20 +29,19 @@ runs:
           const currentBody = pr.body ?? '';
           const marker = '<!-- ticket-link -->';
 
-          const match = branch.match(new RegExp(process.env.ISSUE_PATTERN));
-          if (!match) {
-            core.warning(`Could not match the ticket pattern: ${branch}`);
-            return;
-          }
-          
           if (currentBody.includes(marker)) {
             core.info('Ticket link already added');
             return;
           }
           
-          const issueKey = match[1].toUpperCase();
-          const ticketUrl = `${process.env.TICKET_BASE_URL}${issueKey}`;
-          const descriptionFooter = `${marker}\n🎫 View matching ticket: [${issueKey}](${ticketUrl })`;
+          const match = branch.match(new RegExp(process.env.ISSUE_PATTERN));
+          if (match) {
+            const issueKey = match[1].toUpperCase();
+            const ticketUrl = `${process.env.TICKET_BASE_URL}${issueKey}`;
+            const descriptionFooter = `${marker}\n🎫 View matching ticket: [${issueKey}](${ticketUrl })`;
+          } else {
+            const descriptionFooter= `_Could not match the ticket pattern: ${branch}_`;
+          }          
         
           await github.rest.pulls.update({
             owner: context.repo.owner,
