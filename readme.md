@@ -48,7 +48,9 @@ Create a release and control with its label where you deploy to:
 
 ### Prerequisites / install
 _👉 Add the following file._  
-_👉 This assumes that you have the Forge deploy already working._
+_👉 This assumes that you have the Forge deploy already working._  
+_👉 You can find [the advanced install here](forge-deployer/install.md)_.
+
 ```yaml
 # .github/workflows/forge-deployer.yml
 name: Deploy webhook
